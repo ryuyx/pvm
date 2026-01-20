@@ -1,0 +1,45 @@
+{
+  "name": "@proxy-mgr/cli",
+  "version": "1.0.0",
+  "description": "Cross-platform CLI tool for managing proxy environment variables",
+  "main": "dist/index.js",
+  "bin": {
+    "proxy": "dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "proxy",
+    "cli",
+    "environment",
+    "http-proxy",
+    "https-proxy",
+    "no-proxy",
+    "cross-platform"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "conf": "^13.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  }
+}

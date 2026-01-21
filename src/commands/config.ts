@@ -111,9 +111,9 @@ export function handleConfig(
 function printConfigUsage() {
   console.log();
   console.log('Usage:');
-  console.log('  proxy config show');
-  console.log('  proxy config set <http|https|both|no-proxy> <value>');
-  console.log('  proxy config add no-proxy <item>');
-  console.log('  proxy config rm no-proxy <item>');
-  console.log('  proxy config reset');
+  console.log('  pvm config show');
+  console.log('  pvm config set <http|https|both|no-proxy> <value>');
+  console.log('  pvm config add no-proxy <item>');
+  console.log('  pvm config rm no-proxy <item>');
+  console.log('  pvm config reset');
 }

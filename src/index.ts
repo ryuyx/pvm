@@ -12,11 +12,11 @@ import { getProxyStatus } from './core/proxy.js';
 const program = new Command();
 
 program
-  .name('proxy')
+  .name('pvm')
   .description('Cross-platform CLI tool for managing proxy environment variables')
   .version('1.0.0');
 
-// proxy on
+// pvm on
 program
   .command('on')
   .description('Enable proxy (displays commands to run)')
@@ -24,7 +24,7 @@ program
     handleOn();
   });
 
-// proxy off
+// pvm off
 program
   .command('off')
   .description('Disable proxy (displays commands to run)')
@@ -32,7 +32,7 @@ program
     handleOff();
   });
 
-// proxy list
+// pvm list
 program
   .command('list')
   .alias('status')
@@ -41,7 +41,7 @@ program
     handleList();
   });
 
-// proxy set <url>
+// pvm set <url>
 program
   .command('set [url]')
   .description('Set proxy URL for both HTTP and HTTPS')
@@ -52,7 +52,7 @@ program
     handleSet(url, options);
   });
 
-// proxy config
+// pvm config
 const configCmd = program
   .command('config')
   .description('Manage proxy configuration');
@@ -105,7 +105,7 @@ program.action(() => {
   }
   
   console.log();
-  console.log(chalk.dim('Run "proxy --help" for usage information'));
+  console.log(chalk.dim('Run "pvm --help" for usage information'));
 });
 
 program.parse();

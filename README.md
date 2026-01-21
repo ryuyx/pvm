@@ -16,23 +16,23 @@
 ## Installation
 
 ```bash
-npm install -g @proxy-mgr/cli
+npm install -g @ryuyx/pvm
 ```
 
 ## Quick Start
 
 ```bash
 # Set proxy
-proxy set http://127.0.0.1:7890
+pvm set http://127.0.0.1:7890
 
 # Enable proxy (shows commands to run)
-proxy on
+pvm on
 
 # Check status
-proxy list
+pvm list
 
 # Disable proxy
-proxy off
+pvm off
 ```
 
 ## Usage
@@ -41,55 +41,55 @@ proxy off
 
 **Check current status:**
 ```bash
-proxy
-proxy list
+pvm
+pvm list
 ```
 
 **Set proxy URL:**
 ```bash
 # Set both HTTP and HTTPS to the same URL
-proxy set http://127.0.0.1:7890
+pvm set http://127.0.0.1:7890
 
 # Set HTTP and HTTPS separately
-proxy set --http http://127.0.0.1:7890 --https http://127.0.0.1:7891
+pvm set --http http://127.0.0.1:7890 --https http://127.0.0.1:7891
 
 # Set with NO_PROXY list
-proxy set http://127.0.0.1:7890 --no-proxy "localhost,127.0.0.1,.local"
+pvm set http://127.0.0.1:7890 --no-proxy "localhost,127.0.0.1,.local"
 ```
 
 **Enable/Disable proxy:**
 ```bash
-proxy on    # Shows commands to enable
-proxy off   # Shows commands to disable
+pvm on    # Shows commands to enable
+pvm off   # Shows commands to disable
 ```
 
 ### Configuration Management
 
 **View configuration:**
 ```bash
-proxy config show
+pvm config show
 ```
 
 **Set specific values:**
 ```bash
-proxy config set http http://127.0.0.1:7890
-proxy config set https http://127.0.0.1:7891
-proxy config set both http://127.0.0.1:7890
-proxy config set no-proxy "localhost,127.0.0.1"
+pvm config set http http://127.0.0.1:7890
+pvm config set https http://127.0.0.1:7891
+pvm config set both http://127.0.0.1:7890
+pvm config set no-proxy "localhost,127.0.0.1"
 ```
 
 **Manage NO_PROXY list:**
 ```bash
 # Add domain to NO_PROXY
-proxy config add no-proxy .local
+pvm config add no-proxy .local
 
 # Remove domain from NO_PROXY
-proxy config rm no-proxy .local
+pvm config rm no-proxy .local
 ```
 
 **Reset to defaults:**
 ```bash
-proxy config reset
+pvm config reset
 ```
 
 ## Shell Integration
@@ -100,7 +100,7 @@ Since Node.js runs in a subprocess and cannot modify the parent shell's environm
 
 ```bash
 # 1. Run this to see the commands
-proxy on
+pvm on
 
 # 2. Copy and paste the output commands into your shell
 export http_proxy="http://127.0.0.1:7890"
@@ -114,37 +114,37 @@ Add this to your shell profile for automatic execution:
 
 **For Bash/Zsh** (~/.bashrc or ~/.zshrc):
 ```bash
-proxy() {
+pvm() {
   if [ "$1" = "on" ]; then
-    eval "$(command proxy on 2>/dev/null | grep -E '^(export|unset)')"
+    eval "$(command pvm on 2>/dev/null | grep -E '^(export|unset)')"
     echo "✓ Proxy enabled"
   elif [ "$1" = "off" ]; then
-    eval "$(command proxy off 2>/dev/null | grep -E '^(export|unset)')"
+    eval "$(command pvm off 2>/dev/null | grep -E '^(export|unset)')"
     echo "✗ Proxy disabled"
   else
-    command proxy "$@"
+    command pvm "$@"
   fi
 }
 ```
 
 **For PowerShell** ($PROFILE):
 ```powershell
-function proxy {
+function pvm {
   if ($args[0] -eq "on") {
-    $commands = proxy-actual on 2>$null | Select-String '^\$env:|^Remove-Item'
+    $commands = pvm-actual on 2>$null | Select-String '^\$env:|^Remove-Item'
     $commands | ForEach-Object { Invoke-Expression $_ }
     Write-Host "✓ Proxy enabled" -ForegroundColor Green
   } elseif ($args[0] -eq "off") {
-    $commands = proxy-actual off 2>$null | Select-String '^\$env:|^Remove-Item'
+    $commands = pvm-actual off 2>$null | Select-String '^\$env:|^Remove-Item'
     $commands | ForEach-Object { Invoke-Expression $_ }
     Write-Host "✗ Proxy disabled" -ForegroundColor Red
   } else {
-    proxy-actual @args
+    pvm-actual @args
   }
 }
 
 # Rename the actual command
-Set-Alias -Name proxy-actual -Value proxy.cmd
+Set-Alias -Name pvm-actual -Value pvm.cmd
 ```
 
 Then reload your shell:
@@ -154,8 +154,8 @@ source ~/.bashrc  # or ~/.zshrc
 
 Now you can use:
 ```bash
-proxy on   # Actually enables proxy
-proxy off  # Actually disables proxy
+pvm on   # Actually enables proxy
+pvm off  # Actually disables proxy
 ```
 
 ## How It Works
@@ -175,16 +175,16 @@ Config is stored at:
 
 | Command | Description |
 |---------|-------------|
-| `proxy` | Show current status |
-| `proxy on` | Display commands to enable proxy |
-| `proxy off` | Display commands to disable proxy |
-| `proxy list` | Show configuration and status |
-| `proxy set <url>` | Set proxy URL |
-| `proxy config show` | Show configuration |
-| `proxy config set <key> <value>` | Set config value |
-| `proxy config add no-proxy <item>` | Add to NO_PROXY list |
-| `proxy config rm no-proxy <item>` | Remove from NO_PROXY list |
-| `proxy config reset` | Reset to defaults |
+| `pvm` | Show current status |
+| `pvm on` | Display commands to enable proxy |
+| `pvm off` | Display commands to disable proxy |
+| `pvm list` | Show configuration and status |
+| `pvm set <url>` | Set proxy URL |
+| `pvm config show` | Show configuration |
+| `pvm config set <key> <value>` | Set config value |
+| `pvm config add no-proxy <item>` | Add to NO_PROXY list |
+| `pvm config rm no-proxy <item>` | Remove from NO_PROXY list |
+| `pvm config reset` | Reset to defaults |
 
 ## Environment Variables
 
@@ -200,7 +200,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-MIT © [Your Name]
+MIT © Liu Yuxuan
 
 ## Related Projects
 

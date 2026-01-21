@@ -1,0 +1,37 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+.eslintrc.*
+.prettierrc.*
+
+# Development
+node_modules/
+.vscode/
+.idea/
+
+# Tests
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Documentation
+docs/
+openspec/
+AGENTS.md
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.log
+.DS_Store
+.env
+.env.*
+coverage/
+*.tgz

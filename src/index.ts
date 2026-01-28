@@ -7,6 +7,7 @@ import { handleOff } from './commands/off.js';
 import { handleList } from './commands/list.js';
 import { handleSet } from './commands/set.js';
 import { handleConfig } from './commands/config.js';
+import { handleInstall, handleUninstall } from './commands/install.js';
 import { getProxyStatus } from './core/proxy.js';
 
 const program = new Command();
@@ -91,6 +92,22 @@ configCmd
   .description('Reset configuration to defaults')
   .action(() => {
     handleConfig('reset');
+  });
+
+// pvm install
+program
+  .command('install')
+  .description('Install shell integration (auto-enable/disable proxy)')
+  .action(() => {
+    handleInstall();
+  });
+
+// pvm uninstall
+program
+  .command('uninstall')
+  .description('Uninstall shell integration')
+  .action(() => {
+    handleUninstall();
   });
 
 // Default action (no command)

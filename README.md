@@ -2,7 +2,7 @@
 
 > 🚀 Cross-platform CLI tool for managing proxy environment variables
 
-[![npm version](https://badge.fury.io/js/%40proxy-mgr%2Fcli.svg)](https://www.npmjs.com/package/@proxy-mgr/cli)
+[![npm version](https://badge.fury.io/js/%40ryuyx%2Fpvm.svg)](https://www.npmjs.com/package/@ryuyx/pvm)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
@@ -94,9 +94,33 @@ pvm config reset
 
 ## Shell Integration
 
-Since Node.js runs in a subprocess and cannot modify the parent shell's environment, you need to copy and run the commands shown by `proxy on` and `proxy off`.
+Since Node.js runs in a subprocess and cannot modify the parent shell's environment, you have the following options:
 
-### Option 1: Manual (Recommended for first-time users)
+### Option 1: Automatic Installation (Recommended)
+
+Simply run the install command to automatically add shell integration:
+
+```bash
+pvm install
+```
+
+This will:
+- Detect your shell type (Bash, Zsh, or PowerShell)
+- Add the integration function to your shell config file
+- Enable `pvm on` and `pvm off` to work automatically
+
+Then reload your shell:
+```bash
+source ~/.bashrc  # or ~/.zshrc for Zsh
+# Or simply restart your terminal
+```
+
+To uninstall:
+```bash
+pvm uninstall
+```
+
+### Option 2: Manual Copy-Paste (Simple)
 
 ```bash
 # 1. Run this to see the commands
@@ -108,9 +132,9 @@ export https_proxy="http://127.0.0.1:7890"
 # ... etc
 ```
 
-### Option 2: Shell Function (Advanced)
+### Option 3: Manual Shell Function (Advanced)
 
-Add this to your shell profile for automatic execution:
+If you prefer to add the function manually, add this to your shell profile:
 
 **For Bash/Zsh** (~/.bashrc or ~/.zshrc):
 ```bash
@@ -180,6 +204,8 @@ Config is stored at:
 | `pvm off` | Display commands to disable proxy |
 | `pvm list` | Show configuration and status |
 | `pvm set <url>` | Set proxy URL |
+| `pvm install` | Auto-install shell integration |
+| `pvm uninstall` | Remove shell integration |
 | `pvm config show` | Show configuration |
 | `pvm config set <key> <value>` | Set config value |
 | `pvm config add no-proxy <item>` | Add to NO_PROXY list |

@@ -7,8 +7,8 @@ export function handleSet(url?: string, options?: { http?: string; https?: strin
     console.log(chalk.red('Error: Missing URL or options'));
     console.log();
     console.log('Usage:');
-    console.log('  proxy set <url>');
-    console.log('  proxy set --http <url> [--https <url>] [--no-proxy <list>]');
+    console.log('  pvm set <url>');
+    console.log('  pvm set --http <url> [--https <url>] [--no-proxy <list>]');
     return;
   }
 
@@ -34,8 +34,8 @@ export function handleSet(url?: string, options?: { http?: string; https?: strin
 
   console.log();
   if (isProxyEnabled()) {
-    console.log(chalk.yellow('Proxy is currently enabled. Run "proxy on" to apply new settings.'));
+    console.log(chalk.yellow('Proxy is currently enabled. Run "pvm on" to apply new settings.'));
   } else {
-    console.log(chalk.dim('Configuration saved. Run "proxy on" to enable proxy.'));
+    console.log(chalk.dim('Configuration saved. Run "pvm on" to enable proxy.'));
   }
 }

@@ -9,13 +9,14 @@ import { handleSet } from './commands/set.js';
 import { handleConfig } from './commands/config.js';
 import { handleInstall, handleUninstall } from './commands/install.js';
 import { getProxyStatus } from './core/proxy.js';
+import packageJson from '../package.json' with { type: 'json' };
 
 const program = new Command();
 
 program
   .name('pvm')
   .description('Cross-platform CLI tool for managing proxy environment variables')
-  .version('1.0.0');
+  .version(packageJson.version, '-v, --version');
 
 // pvm on
 program

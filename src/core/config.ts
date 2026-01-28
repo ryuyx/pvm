@@ -1,4 +1,6 @@
 import Conf from 'conf';
+import path from 'path';
+import os from 'os';
 import type { ProxyConfig } from '../types/index.js';
 
 const DEFAULT_PROXY_URL = 'http://127.0.0.1:20170';
@@ -14,7 +16,8 @@ class ConfigManager {
 
   constructor() {
     this.config = new Conf<ConfigSchema>({
-      projectName: 'proxy-manager',
+      cwd: path.join(os.homedir(), '.pvm'),
+      configName: 'config',
       defaults: {
         http: DEFAULT_PROXY_URL,
         https: DEFAULT_PROXY_URL,

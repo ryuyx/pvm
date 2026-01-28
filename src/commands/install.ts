@@ -122,7 +122,7 @@ export function handleInstall() {
   
   // Append to config file
   try {
-    const separator = '\n' + '='.repeat(60) + '\n';
+    const separator = '\n# ' + '='.repeat(58) + '\n';
     const content = fs.existsSync(configFile) ? fs.readFileSync(configFile, 'utf-8') : '';
     const newContent = content + separator + shellFunction;
     
@@ -187,7 +187,7 @@ export function handleUninstall() {
       if (i > 0 && lines[i - 1].trim() === '') {
         startIndex = i - 1;
         // Look back for separator before empty line
-        if (i > 1 && lines[i - 2].match(/^=+$/)) {
+        if (i > 1 && lines[i - 2].match(/^#\s*=+$/)) {
           startIndex = i - 2;
           // Look back for empty line before separator
           if (i > 2 && lines[i - 3].trim() === '') {

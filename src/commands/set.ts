@@ -3,7 +3,7 @@ import { configManager } from '../core/config.js';
 import { isProxyEnabled } from '../core/proxy.js';
 
 export function handleSet(url?: string, options?: { http?: string; https?: string; noProxy?: string }) {
-  if (!url && !options) {
+  if (!url && !options?.http && !options?.https) {
     console.log(chalk.red('Error: Missing URL or options'));
     console.log();
     console.log('Usage:');
@@ -12,24 +12,24 @@ export function handleSet(url?: string, options?: { http?: string; https?: strin
     return;
   }
 
-  // Simple mode: proxy set <url>
-  if (url && !options) {
+  // Simple mode: pvm set <url>
+  if (url && !options?.http && !options?.https) {
     configManager.setBoth(url);
     console.log(chalk.green(`[proxy] Set both HTTP and HTTPS to: ${url}`));
-  } else if (options) {
-    // Advanced mode with options
-    if (options.http) {
-      configManager.setHttp(options.http);
-      console.log(chalk.green(`[proxy] Set HTTP to: ${options.http}`));
-    }
-    if (options.https) {
-      configManager.setHttps(options.https);
-      console.log(chalk.green(`[proxy] Set HTTPS to: ${options.https}`));
-    }
-    if (options.noProxy !== undefined) {
-      configManager.setNoProxy(options.noProxy);
-      console.log(chalk.green(`[proxy] Set NO_PROXY to: ${options.noProxy || '<empty>'}`));
-    }
+  }
+  
+  // Advanced mode with options
+  if (options?.http) {
+    configManager.setHttp(options.http);
+    console.log(chalk.green(`[proxy] Set HTTP to: ${options.http}`));
+  }
+  if (options?.https) {
+    configManager.setHttps(options.https);
+    console.log(chalk.green(`[proxy] Set HTTPS to: ${options.https}`));
+  }
+  if (options?.noProxy !== undefined) {
+    configManager.setNoProxy(options.noProxy);
+    console.log(chalk.green(`[proxy] Set NO_PROXY to: ${options.noProxy || '<empty>'}`));
   }
 
   console.log();

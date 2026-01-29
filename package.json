@@ -1,6 +1,6 @@
 {
   "name": "@ryuyx/pvm",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Cross-platform CLI tool for managing proxy environment variables",
   "main": "dist/index.js",
   "bin": {

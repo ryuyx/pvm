@@ -3,11 +3,7 @@ import { configManager } from '../core/config.js';
 import { addToNoProxyList, removeFromNoProxyList } from '../utils/no-proxy.js';
 import { handleList } from './list.js';
 
-export function handleConfig(
-  action: string,
-  key?: string,
-  value?: string,
-) {
+export function handleConfig(action: string, key?: string, value?: string) {
   switch (action) {
     case 'show':
       handleList();
@@ -60,7 +56,7 @@ export function handleConfig(
       }
       break;
 
-    case 'add':
+    case 'add': {
       if (key !== 'no-proxy' && key !== 'no_proxy') {
         console.log(chalk.red('Error: Only "no-proxy" can be added'));
         return;
@@ -75,10 +71,11 @@ export function handleConfig(
       console.log(chalk.green(`[proxy] Added "${value}" to NO_PROXY`));
       console.log(chalk.dim(`NO_PROXY: ${newList || '<empty>'}`));
       break;
+    }
 
     case 'rm':
     case 'remove':
-    case 'del':
+    case 'del': {
       if (key !== 'no-proxy' && key !== 'no_proxy') {
         console.log(chalk.red('Error: Only "no-proxy" can be removed'));
         return;
@@ -93,6 +90,7 @@ export function handleConfig(
       console.log(chalk.green(`[proxy] Removed "${value}" from NO_PROXY`));
       console.log(chalk.dim(`NO_PROXY: ${newListRm || '<empty>'}`));
       break;
+    }
 
     case 'reset':
       configManager.reset();

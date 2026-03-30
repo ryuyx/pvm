@@ -8,6 +8,7 @@ import { handleList } from './commands/list.js';
 import { handleSet } from './commands/set.js';
 import { handleConfig } from './commands/config.js';
 import { handleInstall, handleUninstall } from './commands/install.js';
+import { handleTest } from './commands/test.js';
 import { getProxyStatus } from './core/proxy.js';
 import packageJson from '../package.json' with { type: 'json' };
 
@@ -109,6 +110,15 @@ program
   .description('Uninstall shell integration')
   .action(() => {
     handleUninstall();
+  });
+
+// pvm test
+program
+  .command('test')
+  .alias('doctor')
+  .description('Test proxy connectivity and display IP information')
+  .action(async () => {
+    await handleTest();
   });
 
 // Default action (no command)

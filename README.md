@@ -11,6 +11,7 @@
 ✅ **Simple CLI** - Easy-to-use commands for managing proxies  
 ✅ **Persistent Config** - Save proxy settings for reuse  
 ✅ **NO_PROXY Support** - Manage proxy bypass lists  
+✅ **Proxy Testing** - Test connectivity and display IP information  
 ✅ **Shell Integration** - Optional shell functions for seamless usage
 
 ## Installation
@@ -40,12 +41,14 @@ pvm off
 ### Basic Commands
 
 **Check current status:**
+
 ```bash
 pvm
 pvm list
 ```
 
 **Set proxy URL:**
+
 ```bash
 # Set both HTTP and HTTPS to the same URL
 pvm set http://127.0.0.1:7890
@@ -58,6 +61,7 @@ pvm set http://127.0.0.1:7890 --no-proxy "localhost,127.0.0.1,.local"
 ```
 
 **Enable/Disable proxy:**
+
 ```bash
 pvm on    # Shows commands to enable
 pvm off   # Shows commands to disable
@@ -66,11 +70,13 @@ pvm off   # Shows commands to disable
 ### Configuration Management
 
 **View configuration:**
+
 ```bash
 pvm config show
 ```
 
 **Set specific values:**
+
 ```bash
 pvm config set http http://127.0.0.1:7890
 pvm config set https http://127.0.0.1:7891
@@ -79,6 +85,7 @@ pvm config set no-proxy "localhost,127.0.0.1"
 ```
 
 **Manage NO_PROXY list:**
+
 ```bash
 # Add domain to NO_PROXY
 pvm config add no-proxy .local
@@ -88,8 +95,55 @@ pvm config rm no-proxy .local
 ```
 
 **Reset to defaults:**
+
 ```bash
 pvm config reset
+```
+
+### Testing Proxy Connectivity
+
+Test your proxy configuration and see detailed information:
+
+```bash
+# Test proxy connectivity and display IP information
+pvm test
+
+# Alias: doctor
+pvm doctor
+```
+
+This command will:
+
+- Show current proxy configuration
+- Test direct internet connection (without proxy)
+- Test proxy connectivity and latency
+- Display your current IP address and location
+- Compare latency between direct and proxy connections
+- Provide troubleshooting tips if connection fails
+
+Example output:
+
+```
+🧪 Testing proxy configuration...
+
+Current Configuration:
+  HTTP Proxy:  http://127.0.0.1:7890
+  HTTPS Proxy: http://127.0.0.1:7890
+  Status:      ✓ ENABLED
+
+Testing direct connection (no proxy)...
+  ✓ Connected directly
+    Latency: 245ms
+    IP: 183.251.239.27
+    Location: Beijing, China
+
+Testing proxy connection (http://127.0.0.1:7890)...
+  ✓ Proxy is reachable
+    Latency: 156ms
+    Overhead: -89ms (faster than direct!)
+    Exit IP: 104.16.249.249
+    Exit Location: San Francisco, United States
+    ✓ IP successfully changed!
 ```
 
 ## Shell Integration
@@ -105,17 +159,20 @@ pvm install
 ```
 
 This will:
+
 - Detect your shell type (Bash, Zsh, or PowerShell)
 - Add the integration function to your shell config file
 - Enable `pvm on` and `pvm off` to work automatically
 
 Then reload your shell:
+
 ```bash
 source ~/.bashrc  # or ~/.zshrc for Zsh
 # Or simply restart your terminal
 ```
 
 To uninstall:
+
 ```bash
 pvm uninstall
 ```
@@ -137,6 +194,7 @@ export https_proxy="http://127.0.0.1:7890"
 If you prefer to add the function manually, add this to your shell profile:
 
 **For Bash/Zsh** (~/.bashrc or ~/.zshrc):
+
 ```bash
 pvm() {
   if [ "$1" = "on" ]; then
@@ -152,6 +210,7 @@ pvm() {
 ```
 
 **For PowerShell** ($PROFILE):
+
 ```powershell
 function pvm {
   if ($args[0] -eq "on") {
@@ -172,11 +231,13 @@ Set-Alias -Name pvm-actual -Value pvm.cmd
 ```
 
 Then reload your shell:
+
 ```bash
 source ~/.bashrc  # or ~/.zshrc
 ```
 
 Now you can use:
+
 ```bash
 pvm on   # Actually enables proxy
 pvm off  # Actually disables proxy
@@ -191,26 +252,28 @@ pvm off  # Actually disables proxy
 ## Configuration File Location
 
 Config is stored at:
+
 - **Windows**: `%APPDATA%\proxy-manager-nodejs\Config\config.json`
 - **macOS**: `~/Library/Preferences/proxy-manager-nodejs/config.json`
 - **Linux**: `~/.config/proxy-manager-nodejs/config.json`
 
 ## Commands Reference
 
-| Command | Description |
-|---------|-------------|
-| `pvm` | Show current status |
-| `pvm on` | Display commands to enable proxy |
-| `pvm off` | Display commands to disable proxy |
-| `pvm list` | Show configuration and status |
-| `pvm set <url>` | Set proxy URL |
-| `pvm install` | Auto-install shell integration |
-| `pvm uninstall` | Remove shell integration |
-| `pvm config show` | Show configuration |
-| `pvm config set <key> <value>` | Set config value |
-| `pvm config add no-proxy <item>` | Add to NO_PROXY list |
-| `pvm config rm no-proxy <item>` | Remove from NO_PROXY list |
-| `pvm config reset` | Reset to defaults |
+| Command                          | Description                                 |
+| -------------------------------- | ------------------------------------------- |
+| `pvm`                            | Show current status                         |
+| `pvm on`                         | Display commands to enable proxy            |
+| `pvm off`                        | Display commands to disable proxy           |
+| `pvm list`                       | Show configuration and status               |
+| `pvm set <url>`                  | Set proxy URL                               |
+| `pvm test`                       | Test proxy connectivity and display IP info |
+| `pvm install`                    | Auto-install shell integration              |
+| `pvm uninstall`                  | Remove shell integration                    |
+| `pvm config show`                | Show configuration                          |
+| `pvm config set <key> <value>`   | Set config value                            |
+| `pvm config add no-proxy <item>` | Add to NO_PROXY list                        |
+| `pvm config rm no-proxy <item>`  | Remove from NO_PROXY list                   |
+| `pvm config reset`               | Reset to defaults                           |
 
 ## Environment Variables
 

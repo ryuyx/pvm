@@ -60,6 +60,11 @@ class ConfigManager {
   getConfigPath(): string {
     return this.config.path;
   }
+
+  isDefaultConfig(): boolean {
+    const config = this.getConfig();
+    return config.http === DEFAULT_PROXY_URL && config.https === DEFAULT_PROXY_URL;
+  }
 }
 
 export const configManager = new ConfigManager();

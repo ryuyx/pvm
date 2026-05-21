@@ -1,11 +1,51 @@
+import readline from 'readline';
 import chalk from 'chalk';
 import {
   generateEnableCommands,
   generateEnableCommandsPowerShell,
   detectShell,
+  detectShellWithConfig,
+  isShellIntegrationInstalled,
 } from '../core/proxy.js';
+import { handleInstall } from './install.js';
 
-export function handleOn() {
+const SHELL_INTEGRATION_TIP =
+  "Tip: Run 'pvm install' to set up shell integration for automatic proxy management.";
+
+function promptInstall(): Promise<boolean> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(
+      chalk.yellow(
+        "Shell integration not detected. Allows 'pvm on'/'pvm off' to actually set environment variables.\n",
+      ) + chalk.white('Would you like to install it now? (Y/n) '),
+      (answer) => {
+        rl.close();
+        resolve(answer.toLowerCase() === 'y' || answer === '');
+      },
+    );
+  });
+}
+
+export async function handleOn() {
+  const detected = detectShellWithConfig();
+  if (detected && !isShellIntegrationInstalled(detected.configFile)) {
+    if (process.stdin.isTTY) {
+      const shouldInstall = await promptInstall();
+      if (shouldInstall) {
+        handleInstall();
+        return;
+      }
+    } else {
+      console.log(chalk.dim(SHELL_INTEGRATION_TIP));
+      console.log();
+    }
+  }
+
   const shell = detectShell();
 
   console.log(chalk.green('[proxy] Enabling proxy...'));

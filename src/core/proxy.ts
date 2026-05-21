@@ -1,3 +1,7 @@
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { execSync } from 'child_process';
 import { configManager } from './config.js';
 import type { ProxyStatus } from '../types/index.js';
 
@@ -13,7 +17,7 @@ export function isProxyEnabled(): boolean {
  */
 export function getProxyStatus(): ProxyStatus {
   const config = configManager.getConfig();
-  
+
   return {
     isEnabled: isProxyEnabled(),
     config,
@@ -118,7 +122,7 @@ export function detectShell(): 'powershell' | 'bash' | 'unknown' {
       return 'powershell';
     }
   }
-  
+
   // Unix-like systems (macOS, Linux) or Git Bash on Windows
   const shell = process.env.SHELL || '';
   if (shell.includes('bash') || shell.includes('zsh') || shell.includes('sh')) {
@@ -126,4 +130,36 @@ export function detectShell(): 'powershell' | 'bash' | 'unknown' {
   }
 
   return 'unknown';
+}
+
+export function detectShellWithConfig(): { shell: string; configFile: string } | null {
+  const homeDir = os.homedir();
+
+  const shellEnv = process.env.SHELL || '';
+
+  if (shellEnv.includes('zsh')) {
+    return { shell: 'zsh', configFile: path.join(homeDir, '.zshrc') };
+  } else if (shellEnv.includes('bash')) {
+    return { shell: 'bash', configFile: path.join(homeDir, '.bashrc') };
+  } else if (os.platform() === 'win32') {
+    try {
+      const profilePath = execSync('powershell -NoProfile -Command "echo $PROFILE"', {
+        encoding: 'utf-8',
+      }).trim();
+      return { shell: 'powershell', configFile: profilePath };
+    } catch {
+      return null;
+    }
+  }
+
+  return { shell: 'bash', configFile: path.join(homeDir, '.bashrc') };
+}
+
+export function isShellIntegrationInstalled(configFile: string): boolean {
+  if (!fs.existsSync(configFile)) {
+    return false;
+  }
+
+  const content = fs.readFileSync(configFile, 'utf-8');
+  return content.includes('# pvm - Proxy Manager shell integration');
 }

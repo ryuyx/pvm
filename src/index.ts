@@ -10,6 +10,7 @@ import { handleConfig } from './commands/config.js';
 import { handleInstall, handleUninstall } from './commands/install.js';
 import { handleTest } from './commands/test.js';
 import { getProxyStatus } from './core/proxy.js';
+import { configManager } from './core/config.js';
 import packageJson from '../package.json' with { type: 'json' };
 
 const program = new Command();
@@ -23,8 +24,8 @@ program
 program
   .command('on')
   .description('Enable proxy (displays commands to run)')
-  .action(() => {
-    handleOn();
+  .action(async () => {
+    await handleOn();
   });
 
 // pvm off
@@ -56,9 +57,7 @@ program
   });
 
 // pvm config
-const configCmd = program
-  .command('config')
-  .description('Manage proxy configuration');
+const configCmd = program.command('config').description('Manage proxy configuration');
 
 configCmd
   .command('show')
@@ -124,14 +123,22 @@ program
 // Default action (no command)
 program.action(() => {
   const status = getProxyStatus();
-  
+
   if (status.isEnabled) {
     console.log(chalk.green(`✓ Proxy is ENABLED`));
     console.log(chalk.dim(`  ${status.env.http_proxy || status.env.HTTP_PROXY}`));
   } else {
     console.log(chalk.red('✗ Proxy is DISABLED'));
   }
-  
+
+  if (configManager.isDefaultConfig()) {
+    console.log();
+    console.log(chalk.dim('Quick Start:'));
+    console.log(chalk.dim(`  pvm set <url>\tSet your proxy address`));
+    console.log(chalk.dim(`  pvm install\tInstall shell integration`));
+    console.log(chalk.dim(`  pvm on\t\tEnable proxy`));
+  }
+
   console.log();
   console.log(chalk.dim('Run "pvm --help" for usage information'));
 });

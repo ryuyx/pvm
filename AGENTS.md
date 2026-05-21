@@ -1,14 +1,17 @@
 <!-- OPENSPEC:START -->
+
 # OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
 
 Always open `@/openspec/AGENTS.md` when the request:
+
 - Mentions planning or proposals (words like proposal, spec, change, plan)
 - Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
 - Sounds ambiguous and you need the authoritative spec before coding
 
 Use `@/openspec/AGENTS.md` to learn:
+
 - How to create and apply change proposals
 - Spec format and conventions
 - Project structure and guidelines
@@ -17,125 +20,105 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
-# AGENTS.md - AI Assistant Guidelines
+# pvm - Proxy Manager
 
-## Project Overview
+Cross-platform CLI tool for managing proxy environment variables (HTTP_PROXY, HTTPS_PROXY, NO_PROXY). Node.js/TypeScript CLI distributed via npm.
 
-PVM (Proxy Version Manager) - A cross-platform CLI tool for managing proxy environment variables. Built with TypeScript, targeting Node.js 16+.
-
-## Build Commands
+## Build / Lint / Test
 
 ```bash
-# Build TypeScript to dist/
-npm run build
-
-# Watch mode for development
-npm run dev
-
-# Run the CLI
-npm start
-# or
-node dist/index.js
+npm run build       # tsc — compiles src/ to dist/
+npm run dev         # tsc --watch
+npm run lint        # eslint src --ext .ts
+npm run format      # prettier --write "src/**/*.ts"
+npm start           # node dist/index.js
+npm run prepublishOnly  # runs build before publish
 ```
 
-## Lint Commands
-
-```bash
-# Lint TypeScript files
-npm run lint
-
-# Fix auto-fixable issues
-npx eslint src --ext .ts --fix
-```
-
-## Format Commands
-
-```bash
-# Format all TypeScript files
-npm run format
-
-# Check formatting without writing
-npx prettier --check "src/**/*.ts"
-```
-
-## Code Style Guidelines
-
-### TypeScript Configuration
-- Target: ES2020
-- Module: ESNext with Node.js resolution
-- Strict mode enabled
-- All strict flags: `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`, `noFallthroughCasesInSwitch`
-
-### Formatting (Prettier)
-- Semi-colons: required
-- Trailing commas: all
-- Single quotes: yes
-- Print width: 100
-- Tab width: 2 spaces
-- Arrow function parentheses: always
-
-### Imports
-- Use ES modules (`"type": "module"` in package.json)
-- Import order: external libraries first, then internal modules
-- Use `.js` extension in imports (e.g., `import { foo } from './bar.js'`)
-- Type imports: `import type { Foo } from './types.js'`
-
-### Naming Conventions
-- Functions: camelCase (e.g., `getProxyStatus`)
-- Types/Interfaces: PascalCase (e.g., `ProxyConfig`)
-- Constants: camelCase for local, UPPER_SNAKE_CASE for true constants
-- Files: camelCase with `.ts` extension
-
-### Error Handling
-- Use early returns for guard clauses
-- Validate inputs before processing
-- Use `console.error()` for errors with chalk colors for visibility
-- Exit with appropriate status codes when needed
-
-### Type Safety
-- Avoid `any` (ESLint warns on explicit any)
-- Use explicit return types on exported functions
-- Define interfaces for configuration objects
-- Use union types for literal values (e.g., `'powershell' | 'bash' | 'unknown'`)
+There is no test framework configured. Before adding tests, choose one (e.g., vitest or jest) and install it first.
 
 ## Project Structure
 
 ```
 src/
-├── index.ts           # CLI entry point with command definitions
-├── types/
-│   └── index.ts       # TypeScript interfaces (ProxyConfig, ProxyStatus)
-├── commands/
-│   ├── on.ts          # Enable proxy command
-│   ├── off.ts         # Disable proxy command
-│   ├── list.ts        # Show status command
-│   ├── set.ts         # Set proxy URL command
-│   ├── config.ts      # Config management subcommands
-│   └── install.ts     # Shell integration install/uninstall
-├── core/
-│   ├── proxy.ts       # Proxy detection and command generation
-│   └── config.ts      # Configuration management
-└── utils/
-    └── no-proxy.ts    # NO_PROXY pattern utilities
+├── index.ts            # Entry point — Commander program setup
+├── commands/           # One file per CLI command (on.ts, off.ts, list.ts, set.ts, config.ts, install.ts, test.ts)
+├── core/               # Business logic (config.ts, proxy.ts)
+├── types/              # TypeScript interfaces (index.ts)
+└── utils/              # Pure utility functions (no-proxy.ts)
 ```
 
-## Dependencies
+## Code Style Guidelines
 
-- **chalk**: Terminal styling (v5.x, ESM)
-- **commander**: CLI framework (v12.x)
-- **conf**: Configuration persistence (v13.x)
+### Imports
 
-## ESLint Rules
+- Node builtins first (`fs`, `path`, `os`, `child_process`), then third-party (`chalk`, `commander`, `conf`), then local (`../core/`, `../utils/`, `../types/`)
+- Use `import type { Foo }` for type-only imports
+- Always use `.js` extension in local imports (ESM): `'../core/config.js'`
+- One import group per section, no blank lines between same-group imports
 
-- Extends: `eslint:recommended`, `@typescript-eslint/recommended`
-- Parser: `@typescript-eslint/parser`
-- Explicit module boundary types: off
-- No explicit any: warn
+### Formatting (Prettier enforced)
 
-## Notes
+- 2-space indent, single quotes, trailing commas (all), print width 100
+- Semicolons required, arrow parens always
 
-- This is a CLI tool that generates shell commands for users to eval
-- Supports Bash/Zsh and PowerShell
-- Configuration stored via `conf` library
-- No test framework currently configured
-- Always include `.js` extension in TypeScript imports for ESM compatibility
+### Types
+
+- Strict mode enabled in tsconfig
+- Define shared interfaces in `src/types/index.ts`
+- Use inline `interface` for module-internal types (e.g., `ConfigSchema` in core/config.ts)
+- Minimize `any` — treat `@typescript-eslint/no-explicit-any` as warning
+- Functions that can return null/undefined should reflect that in their return type
+
+### Naming Conventions
+
+- **Files**: kebab-case (`no-proxy.ts`, `proxy.ts`)
+- **Variables & Functions**: camelCase (`handleOn`, `configManager`, `parseNoProxyList`)
+- **Classes & Interfaces**: PascalCase (`ConfigManager`, `ProxyConfig`)
+- **Constants**: UPPER_SNAKE_CASE for module-level constants (`DEFAULT_PROXY_URL`)
+- **Event handlers**: prefix with `handle` (`handleOn`, `handleConfig`, `handleList`)
+
+### Error Handling
+
+- Use `console.log(chalk.red('Error: ...'))` for user-facing errors (no exceptions for expected error paths)
+- Use `process.exit(1)` only in the install/uninstall commands (for unrecoverable errors)
+- Validate early: check required params at the top of handler functions and return early
+- Catch errors from Node API calls (fs, execSync) and show user-friendly messages
+- Do NOT throw exceptions for CLI input validation — print error + usage, then return
+
+### Output Conventions
+
+- Use `chalk` consistently for terminal styling:
+  - `chalk.green('✓ ...')` for success messages
+  - `chalk.red('✗ ...')` for errors
+  - `chalk.dim('...')` for secondary info (tips, paths, config file locations)
+  - `chalk.cyan('...')` for command output / values to display
+  - `chalk.yellow('...')` for warnings / detected shell type
+  - `chalk.blue('...')` for section headers
+- Prefix CLI messages with `[proxy]` for log lines related to proxy operations
+- End output with a blank line before tips/usage when helpful
+
+### ESM & module
+
+- `"type": "module"` in package.json
+- All imports must include `.js` extension (even for .ts files)
+- JSON imports use `with { type: 'json' }` syntax
+- Target ES2020, module resolution "bundler"
+
+### Patterns
+
+- **Singleton**: Export a single instance (e.g., `export const configManager = new ConfigManager()`)
+- **Pure functions**: Keep utils/ functions stateless and side-effect-free
+- **One concern per file**: Each command handler in its own file under commands/
+- **Shell detection**: `detectShell()` returns `'powershell' | 'bash' | 'unknown'`
+- **Config**: Managed via `conf` library, stored at `~/.pvm/config.json`
+
+### OpenSpec (spec-driven development)
+
+This project uses OpenSpec for spec-driven development. See `@/openspec/AGENTS.md` for the full workflow. Key commands:
+
+```bash
+openspec list                    # List active changes
+openspec list --specs            # List specifications
+openspec validate --strict       # Validate all specs
+```

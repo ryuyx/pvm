@@ -1,24 +1,3 @@
-<!-- OPENSPEC:START -->
-
-# OpenSpec Instructions
-
-These instructions are for AI assistants working in this project.
-
-Always open `@/openspec/AGENTS.md` when the request:
-
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
-
-Use `@/openspec/AGENTS.md` to learn:
-
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
-
-Keep this managed block so 'openspec update' can refresh the instructions.
-
-<!-- OPENSPEC:END -->
 
 # pvm - Proxy Manager
 
@@ -34,6 +13,15 @@ npm run format      # prettier --write "src/**/*.ts"
 npm start           # node dist/index.js
 npm run prepublishOnly  # runs build before publish
 ```
+
+**Lint/format extras:**
+
+```bash
+npx eslint src --ext .ts --fix   # Auto-fix lint issues
+npx prettier --check "src/**/*.ts"  # Check formatting (CI)
+```
+
+**Publishing:** Tag push (`v*.*.*`) triggers GitHub Actions (`.github/workflows/publish.yml`) to build, publish to npm, and create a GitHub Release. Requires `NPM_TOKEN` repo secret.
 
 There is no test framework configured. Before adding tests, choose one (e.g., vitest or jest) and install it first.
 
@@ -55,6 +43,7 @@ src/
 - Node builtins first (`fs`, `path`, `os`, `child_process`), then third-party (`chalk`, `commander`, `conf`), then local (`../core/`, `../utils/`, `../types/`)
 - Use `import type { Foo }` for type-only imports
 - Always use `.js` extension in local imports (ESM): `'../core/config.js'`
+- JSON imports use `with { type: 'json' }` syntax: `import pkg from '../package.json' with { type: 'json' }`
 - One import group per section, no blank lines between same-group imports
 
 ### Formatting (Prettier enforced)

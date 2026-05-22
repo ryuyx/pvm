@@ -27,10 +27,10 @@ pvm --help
 ## Quick Start
 
 ```bash
-# 1. Set your proxy
-pvm set http://127.0.0.1:7890
+# 1. First-time setup (configure proxy + install shell integration)
+pvm init
 
-# 2. Enable proxy (prints export commands)
+# 2. Enable proxy
 pvm on
 
 # 3. Verify it's working
@@ -71,7 +71,7 @@ Without shell integration, you need to manually copy & paste these commands, or 
 eval "$(pvm on | grep -E '^(export|unset|\$env:)')"
 ```
 
-With shell integration installed (`pvm install`), just run `pvm on` and it takes effect automatically.
+With shell integration installed (via `pvm init`), just run `pvm on` and it takes effect automatically.
 
 The first time you run `pvm on` without shell integration, it will prompt you to install it.
 
@@ -178,48 +178,47 @@ Testing proxy connection (http://127.0.0.1:7890)...
     ✓ IP successfully changed!
 ```
 
-### `pvm install` — Install shell integration
+### `pvm init` — First-time setup
 
-Installs a shell function so that `pvm on` / `pvm off` actually modify your current shell's environment instead of just printing commands.
-
-```bash
-pvm install
-```
-
-After installation, reload your shell:
+Interactive guided setup for new users. Configures your proxy URL and optionally installs shell integration.
 
 ```bash
-source ~/.zshrc    # or ~/.bashrc
-# For PowerShell:
-. $PROFILE
+pvm init
 ```
 
-Then simply:
+`pvm init` will:
+
+1. Check if a proxy URL is already configured — if not, prompt for one (default: `http://127.0.0.1:20170`)
+2. Check if shell integration is installed — if not, offer to install it
+3. Show a summary of what was configured
+
+In non-interactive environments (CI/CD), `pvm init` silently shows the current configuration without making changes.
+
+### `pvm clean` — Remove shell integration
+
+Removes the pvm shell function from your shell config file and optionally resets proxy configuration.
 
 ```bash
-pvm on    # Proxy enabled automatically
-pvm off   # Proxy disabled automatically
+pvm clean
 ```
 
-#### How it works
+`pvm clean` will:
 
-`pvm install` appends a shell function to your shell's config file (`.zshrc`, `.bashrc`, or PowerShell `$PROFILE`). When you run `pvm on`, the wrapper function:
+1. Confirm removal of shell integration (if present)
+2. Optionally ask "Reset proxy configuration to defaults?"
+3. Show reload instructions
+
+In non-interactive environments, it removes shell integration silently but does NOT reset config.
+
+#### How shell integration works
+
+`pvm init` appends a shell function to your shell's config file (`.zshrc`, `.bashrc`, or PowerShell `$PROFILE`). When you run `pvm on`, the wrapper function:
 
 1. Calls the real pvm binary and captures its output
 2. Filters for `export`/`unset` lines
 3. Evals them in the **current** shell
 
 This is necessary because a child process cannot modify its parent's environment — the shell function bridges that gap.
-
-### `pvm uninstall` — Remove shell integration
-
-Removes the pvm shell function from your shell config file.
-
-```bash
-pvm uninstall
-```
-
-Then reload your shell to apply.
 
 ---
 

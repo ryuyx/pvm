@@ -6,11 +6,11 @@ import {
   detectShell,
   detectShellWithConfig,
   isShellIntegrationInstalled,
+  installShellIntegration,
 } from '../core/proxy.js';
-import { handleInstall } from './install.js';
 
 const SHELL_INTEGRATION_TIP =
-  "Tip: Run 'pvm install' to set up shell integration for automatic proxy management.";
+  "Tip: Run 'pvm init' to set up shell integration for automatic proxy management.";
 
 function promptInstall(): Promise<boolean> {
   const rl = readline.createInterface({
@@ -37,8 +37,12 @@ export async function handleOn() {
     if (process.stdin.isTTY) {
       const shouldInstall = await promptInstall();
       if (shouldInstall) {
-        handleInstall();
-        return;
+        installShellIntegration(detected);
+        console.log(chalk.green('✓ Shell integration installed!'));
+        console.log();
+        console.log(chalk.green('[proxy] Enabling proxy...'));
+        console.log();
+        // Fall through to print the enable commands
       }
     } else {
       console.log(chalk.dim(SHELL_INTEGRATION_TIP));

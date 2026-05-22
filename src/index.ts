@@ -7,7 +7,8 @@ import { handleOff } from './commands/off.js';
 import { handleList } from './commands/list.js';
 import { handleSet } from './commands/set.js';
 import { handleConfig } from './commands/config.js';
-import { handleInstall, handleUninstall } from './commands/install.js';
+import { handleInit } from './commands/init.js';
+import { handleClean } from './commands/clean.js';
 import { handleTest } from './commands/test.js';
 import { getProxyStatus } from './core/proxy.js';
 import { configManager } from './core/config.js';
@@ -95,20 +96,20 @@ configCmd
     handleConfig('reset');
   });
 
-// pvm install
+// pvm init
 program
-  .command('install')
-  .description('Install shell integration (auto-enable/disable proxy)')
-  .action(() => {
-    handleInstall();
+  .command('init')
+  .description('First-time setup: configure proxy and install shell integration')
+  .action(async () => {
+    await handleInit();
   });
 
-// pvm uninstall
+// pvm clean
 program
-  .command('uninstall')
-  .description('Uninstall shell integration')
-  .action(() => {
-    handleUninstall();
+  .command('clean')
+  .description('Remove shell integration and optionally reset configuration')
+  .action(async () => {
+    await handleClean();
   });
 
 // pvm test
@@ -134,8 +135,8 @@ program.action(() => {
   if (configManager.isDefaultConfig()) {
     console.log();
     console.log(chalk.dim('Quick Start:'));
+    console.log(chalk.dim(`  pvm init\t\tFirst-time setup`));
     console.log(chalk.dim(`  pvm set <url>\tSet your proxy address`));
-    console.log(chalk.dim(`  pvm install\tInstall shell integration`));
     console.log(chalk.dim(`  pvm on\t\tEnable proxy`));
   }
 

@@ -163,3 +163,109 @@ export function isShellIntegrationInstalled(configFile: string): boolean {
   const content = fs.readFileSync(configFile, 'utf-8');
   return content.includes('# pvm - Proxy Manager shell integration');
 }
+
+// Shell function templates
+const BASH_FUNCTION = `
+# pvm - Proxy Manager shell integration
+pvm() {
+  if [ "$1" = "on" ]; then
+    eval "$(command pvm on 2>/dev/null | grep -E '^(export|unset)')"
+    echo "✓ Proxy enabled"
+  elif [ "$1" = "off" ]; then
+    eval "$(command pvm off 2>/dev/null | grep -E '^(export|unset)')"
+    echo "✗ Proxy disabled"
+  else
+    command pvm "$@"
+  fi
+}
+`;
+
+const ZSH_FUNCTION = BASH_FUNCTION;
+
+const POWERSHELL_FUNCTION = `
+# pvm - Proxy Manager shell integration
+function pvm {
+  if ($args[0] -eq "on") {
+    $commands = & (Get-Command pvm -CommandType Application).Source on 2>$null | Select-String '^\\$env:|^Remove-Item'
+    $commands | ForEach-Object { Invoke-Expression $_ }
+    Write-Host "✓ Proxy enabled" -ForegroundColor Green
+  } elseif ($args[0] -eq "off") {
+    $commands = & (Get-Command pvm -CommandType Application).Source off 2>$null | Select-String '^\\$env:|^Remove-Item'
+    $commands | ForEach-Object { Invoke-Expression $_ }
+    Write-Host "✗ Proxy disabled" -ForegroundColor Red
+  } else {
+    & (Get-Command pvm -CommandType Application).Source @args
+  }
+}
+`;
+
+function getShellFunction(shell: string): string {
+  switch (shell) {
+    case 'zsh':
+      return ZSH_FUNCTION;
+    case 'bash':
+      return BASH_FUNCTION;
+    case 'powershell':
+      return POWERSHELL_FUNCTION;
+    default:
+      return BASH_FUNCTION;
+  }
+}
+
+export function installShellIntegration(detected: { shell: string; configFile: string }): void {
+  const { shell, configFile } = detected;
+
+  const configDir = path.dirname(configFile);
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
+  const shellFunction = getShellFunction(shell);
+
+  const separator = '\n# ' + '='.repeat(58) + '\n';
+  const content = fs.existsSync(configFile) ? fs.readFileSync(configFile, 'utf-8') : '';
+  const newContent = content + separator + shellFunction;
+
+  fs.writeFileSync(configFile, newContent, 'utf-8');
+}
+
+export function removeShellIntegration(configFile: string): void {
+  const content = fs.readFileSync(configFile, 'utf-8');
+  const lines = content.split('\n');
+  let startIndex = -1;
+  let endIndex = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes('# pvm - Proxy Manager shell integration')) {
+      startIndex = i;
+      if (i > 0 && lines[i - 1].trim() === '') {
+        startIndex = i - 1;
+        if (i > 1 && lines[i - 2].match(/^#\s*=+$/)) {
+          startIndex = i - 2;
+          if (i > 2 && lines[i - 3].trim() === '') {
+            startIndex = i - 3;
+          }
+        }
+      }
+      break;
+    }
+  }
+
+  if (startIndex === -1) return;
+
+  for (let i = startIndex; i < lines.length; i++) {
+    if (lines[i].match(/^}\s*$/) && i > startIndex) {
+      endIndex = i;
+      break;
+    }
+  }
+
+  if (endIndex === -1) return;
+
+  while (endIndex + 1 < lines.length && lines[endIndex + 1].trim() === '') {
+    endIndex++;
+  }
+
+  const newLines = [...lines.slice(0, startIndex), ...lines.slice(endIndex + 1)];
+  fs.writeFileSync(configFile, newLines.join('\n'), 'utf-8');
+}

@@ -38,6 +38,13 @@ pvm list
 pvm test
 ```
 
+Or configure manually:
+
+```bash
+pvm set http://127.0.0.1:7890
+pvm on
+```
+
 ---
 
 ## Commands

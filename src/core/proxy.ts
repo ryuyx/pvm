@@ -186,15 +186,15 @@ const POWERSHELL_FUNCTION = `
 # pvm - Proxy Manager shell integration
 function pvm {
   if ($args[0] -eq "on") {
-    $commands = & (Get-Command pvm -CommandType Application).Source on 2>$null | Select-String '^\\$env:|^Remove-Item'
+    $commands = & pvm on 2>&1 | Select-String '^\\$env:'
     $commands | ForEach-Object { Invoke-Expression $_ }
     Write-Host "✓ Proxy enabled" -ForegroundColor Green
   } elseif ($args[0] -eq "off") {
-    $commands = & (Get-Command pvm -CommandType Application).Source off 2>$null | Select-String '^\\$env:|^Remove-Item'
+    $commands = & pvm off 2>&1 | Select-String '^\\$env:|^Remove-Item'
     $commands | ForEach-Object { Invoke-Expression $_ }
     Write-Host "✗ Proxy disabled" -ForegroundColor Red
   } else {
-    & (Get-Command pvm -CommandType Application).Source @args
+    & pvm @args
   }
 }
 `;

@@ -33,8 +33,8 @@ program
 program
   .command('off')
   .description('Disable proxy (displays commands to run)')
-  .action(() => {
-    handleOff();
+  .action(async () => {
+    await handleOff();
   });
 
 // pvm list
@@ -124,24 +124,29 @@ program
 // Default action (no command)
 program.action(() => {
   const status = getProxyStatus();
+  const config = configManager.getConfig();
+  const isDefault = configManager.isDefaultConfig();
 
-  if (status.isEnabled) {
-    console.log(chalk.green(`✓ Proxy is ENABLED`));
-    console.log(chalk.dim(`  ${status.env.http_proxy || status.env.HTTP_PROXY}`));
-  } else {
-    console.log(chalk.red('✗ Proxy is DISABLED'));
+  console.log(chalk.blue('Proxy Status'));
+  console.log(`  Status:    ${status.isEnabled ? chalk.green('ENABLED') : chalk.red('DISABLED')}`);
+
+  if (!isDefault) {
+    console.log(`  HTTP:      ${chalk.cyan(config.http)}`);
+    console.log(`  HTTPS:     ${chalk.cyan(config.https)}`);
+    console.log(`  NO_PROXY:  ${chalk.cyan(config.noProxy || '<not set>')}`);
+    console.log(`  Config:    ${chalk.dim(configManager.getConfigPath())}`);
   }
 
-  if (configManager.isDefaultConfig()) {
+  if (isDefault) {
     console.log();
     console.log(chalk.dim('Quick Start:'));
-    console.log(chalk.dim(`  pvm init\t\tFirst-time setup`));
-    console.log(chalk.dim(`  pvm set <url>\tSet your proxy address`));
-    console.log(chalk.dim(`  pvm on\t\tEnable proxy`));
+    console.log(chalk.dim('  pvm init\t\tFirst-time setup'));
+    console.log(chalk.dim('  pvm set <url>\t\tSet your proxy address'));
+    console.log(chalk.dim('  pvm on\t\tEnable proxy'));
   }
 
   console.log();
-  console.log(chalk.dim('Run "pvm --help" for usage information'));
+  console.log(chalk.dim('Run "pvm --help" for usage, "pvm list" for detailed view'));
 });
 
 program.parse();

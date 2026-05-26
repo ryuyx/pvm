@@ -1,5 +1,10 @@
 import chalk from 'chalk';
-import { getProxyStatus, detectShell } from '../core/proxy.js';
+import {
+  getProxyStatus,
+  detectShell,
+  detectShellWithConfig,
+  isShellIntegrationInstalled,
+} from '../core/proxy.js';
 import { configManager } from '../core/config.js';
 
 interface TestResult {
@@ -141,6 +146,15 @@ export async function handleTest(): Promise<void> {
   console.log(`  HTTPS Proxy: ${chalk.cyan(status.config.https || '<not set>')}`);
   console.log(`  Status:      ${status.isEnabled ? chalk.green('✓ ENABLED') : chalk.red('✗ DISABLED')}`);
   console.log(`  Shell:       ${chalk.cyan(shell === 'powershell' ? 'PowerShell' : shell === 'bash' ? 'Bash/Zsh' : 'Unknown')}`);
+
+  const shellDetected = detectShellWithConfig();
+  const isIntegrated = shellDetected && isShellIntegrationInstalled(shellDetected.configFile);
+  if (isIntegrated) {
+    console.log(`  Integration: ${chalk.green('✓ installed')}`);
+  } else {
+    console.log(`  Integration: ${chalk.yellow('⚠ not installed')}`);
+    console.log(chalk.dim('               Run "pvm init" to set up shell integration'));
+  }
   console.log();
 
   // 如果没有启用代理，先提醒用户

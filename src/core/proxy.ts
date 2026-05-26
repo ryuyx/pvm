@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import readline from 'readline';
 import { execSync } from 'child_process';
+import chalk from 'chalk';
 import { configManager } from './config.js';
 import type { ProxyStatus } from '../types/index.js';
 
@@ -210,6 +212,25 @@ function getShellFunction(shell: string): string {
     default:
       return BASH_FUNCTION;
   }
+}
+
+export function promptInstall(): Promise<boolean> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(
+      chalk.yellow(
+        "Shell integration not detected. Allows 'pvm on'/'pvm off' to actually set environment variables.\n",
+      ) + chalk.white('Would you like to install it now? (Y/n) '),
+      (answer) => {
+        rl.close();
+        resolve(answer.toLowerCase() === 'y' || answer === '');
+      },
+    );
+  });
 }
 
 export function installShellIntegration(detected: { shell: string; configFile: string }): void {

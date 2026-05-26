@@ -3,9 +3,42 @@ import {
   generateDisableCommands,
   generateDisableCommandsPowerShell,
   detectShell,
+  detectShellWithConfig,
+  isShellIntegrationInstalled,
+  installShellIntegration,
+  promptInstall,
 } from '../core/proxy.js';
 
-export function handleOff() {
+const SHELL_INTEGRATION_TIP =
+  "Tip: Run 'pvm init' to set up shell integration for automatic proxy management.";
+
+export async function handleOff() {
+  const detected = detectShellWithConfig();
+  const isIntegrated = detected && isShellIntegrationInstalled(detected.configFile);
+
+  if (detected && !isIntegrated) {
+    if (process.stdin.isTTY) {
+      const shouldInstall = await promptInstall();
+      if (shouldInstall) {
+        installShellIntegration(detected);
+        console.log(chalk.green('✓ Shell integration installed!'));
+        console.log();
+        console.log(chalk.red('[proxy] Disabling proxy...'));
+        console.log();
+        return printProxyDisabled();
+      }
+    } else {
+      console.log(chalk.dim(SHELL_INTEGRATION_TIP));
+      console.log();
+    }
+  }
+
+  if (isIntegrated) {
+    console.log(chalk.red('[proxy] Disabling proxy...'));
+    console.log();
+    return printProxyDisabled();
+  }
+
   const shell = detectShell();
 
   console.log(chalk.red('[proxy] Disabling proxy...'));
@@ -31,4 +64,10 @@ export function handleOff() {
 
   console.log();
   console.log(chalk.dim('Tip: To automate this, add a shell function. See README for details.'));
+}
+
+function printProxyDisabled() {
+  console.log(chalk.green('[proxy] Proxy disabled'));
+  console.log();
+  console.log(chalk.dim("Run 'pvm list' to see full configuration and environment variables."));
 }

@@ -43,7 +43,7 @@ function promptUrl(currentUrl: string): Promise<string> {
   });
 }
 
-function showSummary(detected: { shell: string; configFile: string } | null) {
+function showSummary(detected: { shell: string; configFile: string } | null, integrationJustInstalled: boolean) {
   const config = configManager.getConfig();
 
   console.log();
@@ -60,6 +60,14 @@ function showSummary(detected: { shell: string; configFile: string } | null) {
     );
   }
 
+  if (integrationJustInstalled) {
+    console.log();
+    console.log('# ' + '='.repeat(50));
+    console.log(chalk.bold.cyan('  Restart your terminal or source your shell config to apply.'));
+    console.log('# ' + '='.repeat(50));
+    console.log();
+  }
+
   console.log();
   console.log(chalk.green('✓ pvm is ready. Run "pvm on" to enable proxy.'));
   console.log(chalk.dim('Config file:'), configManager.getConfigPath());
@@ -72,10 +80,11 @@ export async function handleInit() {
   const config = configManager.getConfig();
   const isDefault = configManager.isDefaultConfig();
   const isInteractive = process.stdin.isTTY;
+  let integrationJustInstalled = false;
 
   if (!isInteractive) {
     console.log(chalk.dim('Non-interactive mode — showing current configuration.'));
-    showSummary(detected);
+    showSummary(detected, integrationJustInstalled);
     return;
   }
 
@@ -108,6 +117,7 @@ export async function handleInit() {
       const reinstall = await prompt('Shell integration is already installed. Reinstall?', false);
       if (reinstall) {
         installShellIntegration(detected);
+        integrationJustInstalled = true;
         console.log(chalk.green('✓ Shell integration reinstalled!'));
       } else {
         console.log(chalk.dim('Skipped.'));
@@ -119,19 +129,23 @@ export async function handleInit() {
       );
       if (shouldInstall) {
         installShellIntegration(detected);
+        integrationJustInstalled = true;
         console.log(chalk.green('✓ Shell integration installed!'));
 
+        console.log();
+        console.log(chalk.bold.cyan('  ═══════════════════════════════════════'));
         if (detected.shell === 'powershell') {
-          console.log(chalk.cyan('  Run: . $PROFILE'));
+          console.log(chalk.bold.cyan('  Run: . $PROFILE'));
         } else {
-          console.log(chalk.cyan(`  Run: source ${detected.configFile}`));
+          console.log(chalk.bold.cyan(`  Run: source ${detected.configFile}`));
         }
-        console.log(chalk.dim('  Or restart your terminal.\n'));
+        console.log(chalk.bold.cyan('  ═══════════════════════════════════════'));
+        console.log();
       } else {
         console.log(chalk.dim('Skipped. You can always set it up later.\n'));
       }
     }
   }
 
-  showSummary(detected);
+  showSummary(detected, integrationJustInstalled);
 }

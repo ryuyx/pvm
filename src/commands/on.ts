@@ -1,4 +1,3 @@
-import readline from 'readline';
 import chalk from 'chalk';
 import {
   generateEnableCommands,
@@ -7,33 +6,18 @@ import {
   detectShellWithConfig,
   isShellIntegrationInstalled,
   installShellIntegration,
+  promptInstall,
 } from '../core/proxy.js';
+import { configManager } from '../core/config.js';
 
 const SHELL_INTEGRATION_TIP =
   "Tip: Run 'pvm init' to set up shell integration for automatic proxy management.";
 
-function promptInstall(): Promise<boolean> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  return new Promise((resolve) => {
-    rl.question(
-      chalk.yellow(
-        "Shell integration not detected. Allows 'pvm on'/'pvm off' to actually set environment variables.\n",
-      ) + chalk.white('Would you like to install it now? (Y/n) '),
-      (answer) => {
-        rl.close();
-        resolve(answer.toLowerCase() === 'y' || answer === '');
-      },
-    );
-  });
-}
-
 export async function handleOn() {
   const detected = detectShellWithConfig();
-  if (detected && !isShellIntegrationInstalled(detected.configFile)) {
+  const isIntegrated = detected && isShellIntegrationInstalled(detected.configFile);
+
+  if (detected && !isIntegrated) {
     if (process.stdin.isTTY) {
       const shouldInstall = await promptInstall();
       if (shouldInstall) {
@@ -42,12 +26,18 @@ export async function handleOn() {
         console.log();
         console.log(chalk.green('[proxy] Enabling proxy...'));
         console.log();
-        // Fall through to print the enable commands
+        return printProxyEnabled();
       }
     } else {
       console.log(chalk.dim(SHELL_INTEGRATION_TIP));
       console.log();
     }
+  }
+
+  if (isIntegrated) {
+    console.log(chalk.green('[proxy] Enabling proxy...'));
+    console.log();
+    return printProxyEnabled();
   }
 
   const shell = detectShell();
@@ -75,4 +65,12 @@ export async function handleOn() {
 
   console.log();
   console.log(chalk.dim('Tip: To automate this, add a shell function. See README for details.'));
+}
+
+function printProxyEnabled() {
+  const config = configManager.getConfig();
+  console.log(chalk.green('[proxy] Proxy enabled'));
+  console.log(chalk.dim(`  ${config.http || config.https}`));
+  console.log();
+  console.log(chalk.dim("Run 'pvm list' to see full configuration and environment variables."));
 }

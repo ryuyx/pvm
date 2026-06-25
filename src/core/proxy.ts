@@ -243,6 +243,8 @@ export function installShellIntegration(detected: { shell: string; configFile: s
 
   const shellFunction = getShellFunction(shell);
 
+  removeShellIntegration(configFile);
+
   const separator = '\n# ' + '='.repeat(58) + '\n';
   const content = fs.existsSync(configFile) ? fs.readFileSync(configFile, 'utf-8') : '';
   const newContent = content + separator + shellFunction;
@@ -251,42 +253,71 @@ export function installShellIntegration(detected: { shell: string; configFile: s
 }
 
 export function removeShellIntegration(configFile: string): void {
-  const content = fs.readFileSync(configFile, 'utf-8');
+  let content: string;
+  try {
+    content = fs.readFileSync(configFile, 'utf-8');
+  } catch {
+    return;
+  }
   const lines = content.split('\n');
-  let startIndex = -1;
-  let endIndex = -1;
 
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].includes('# pvm - Proxy Manager shell integration')) {
-      startIndex = i;
-      if (i > 0 && lines[i - 1].trim() === '') {
-        startIndex = i - 1;
-        if (i > 1 && lines[i - 2].match(/^#\s*=+$/)) {
-          startIndex = i - 2;
-          if (i > 2 && lines[i - 3].trim() === '') {
-            startIndex = i - 3;
+  const findBlock = (startFrom: number): { start: number; end: number } | null => {
+    let startIndex = -1;
+    let endIndex = -1;
+
+    for (let i = startFrom; i < lines.length; i++) {
+      if (lines[i].includes('# pvm - Proxy Manager shell integration')) {
+        startIndex = i;
+        if (i > 0 && lines[i - 1].trim() === '') {
+          startIndex = i - 1;
+          if (i > 1 && lines[i - 2].match(/^#\s*=+$/)) {
+            startIndex = i - 2;
+            if (i > 2 && lines[i - 3].trim() === '') {
+              startIndex = i - 3;
+            }
           }
         }
+        break;
       }
-      break;
+    }
+
+    if (startIndex === -1) return null;
+
+    for (let i = startIndex; i < lines.length; i++) {
+      if (lines[i].match(/^}\s*$/) && i > startIndex) {
+        endIndex = i;
+        break;
+      }
+    }
+
+    if (endIndex === -1) return null;
+
+    while (endIndex + 1 < lines.length && lines[endIndex + 1].trim() === '') {
+      endIndex++;
+    }
+
+    return { start: startIndex, end: endIndex };
+  };
+
+  let cursor = 0;
+  const removeIndexes: number[] = [];
+
+  while (cursor < lines.length) {
+    const block = findBlock(cursor);
+    if (!block) break;
+    removeIndexes.push(block.start, block.end);
+    cursor = block.end + 1;
+  }
+
+  if (removeIndexes.length === 0) return;
+
+  const removeSet = new Set<number>();
+  for (let i = 0; i < removeIndexes.length; i += 2) {
+    for (let j = removeIndexes[i]; j <= removeIndexes[i + 1]; j++) {
+      removeSet.add(j);
     }
   }
 
-  if (startIndex === -1) return;
-
-  for (let i = startIndex; i < lines.length; i++) {
-    if (lines[i].match(/^}\s*$/) && i > startIndex) {
-      endIndex = i;
-      break;
-    }
-  }
-
-  if (endIndex === -1) return;
-
-  while (endIndex + 1 < lines.length && lines[endIndex + 1].trim() === '') {
-    endIndex++;
-  }
-
-  const newLines = [...lines.slice(0, startIndex), ...lines.slice(endIndex + 1)];
+  const newLines = lines.filter((_, i) => !removeSet.has(i));
   fs.writeFileSync(configFile, newLines.join('\n'), 'utf-8');
 }
